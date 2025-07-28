@@ -19,7 +19,9 @@ export const rooms = pgTable("rooms", {
 export const users = pgTable("users", {
   user_id: uuid("user_id").primaryKey(),
   user_name: varchar("user_name", { length: 100 }).notNull(),
-  user_socket: varchar("user_socket", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password_hash: varchar("password_hash", { length: 255 }).notNull(),
+  user_socket: varchar("user_socket", { length: 100 }),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });

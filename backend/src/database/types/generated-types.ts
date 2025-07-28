@@ -3,4 +3,82 @@
  * Please do not edit it manually.
  */
 
-export interface DB {}
+import type { ColumnType } from "kysely";
+
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
+
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
+
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export interface DrizzleDrizzleMigrations {
+  created_at: Int8 | null;
+  hash: string;
+  id: Generated<number>;
+}
+
+export interface Rooms {
+  created_at: Generated<Timestamp>;
+  room_id: string;
+  room_name: string;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface RoomsUsers {
+  created_at: Generated<Timestamp>;
+  room_id: string;
+  updated_at: Generated<Timestamp>;
+  user_id: string;
+}
+
+export interface TaskLocks {
+  expires_at: Timestamp;
+  locked_at: Generated<Timestamp>;
+  todo_id: number;
+  user_id: string;
+}
+
+export interface Todos {
+  assigned_user_id: string | null;
+  created_at: Generated<Timestamp>;
+  editing_user_id: string | null;
+  last_edited_at: Timestamp | null;
+  room_id: string;
+  status: Generated<string>;
+  title: string;
+  todo_description: string | null;
+  todo_id: Generated<number>;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface Users {
+  created_at: Generated<Timestamp>;
+  email: string;
+  password_hash: string;
+  updated_at: Generated<Timestamp>;
+  user_id: string;
+  user_name: string;
+  user_socket: string | null;
+}
+
+export interface UserSessions {
+  created_at: Generated<Timestamp>;
+  is_active: Generated<boolean>;
+  last_activity: Generated<Timestamp>;
+  room_id: string;
+  session_id: string;
+  socket_id: string;
+  user_id: string;
+}
+
+export interface DB {
+  "drizzle.__drizzle_migrations": DrizzleDrizzleMigrations;
+  rooms: Rooms;
+  roomsUsers: RoomsUsers;
+  task_locks: TaskLocks;
+  todos: Todos;
+  user_sessions: UserSessions;
+  users: Users;
+}
