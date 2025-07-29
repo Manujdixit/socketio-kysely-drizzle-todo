@@ -1,113 +1,110 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import { config } from './index';
+import swaggerJsdoc from "swagger-jsdoc";
+import { config } from "./index";
 
 const options: swaggerJsdoc.Options = {
   definition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'Live Collaborative Todo API',
-      version: '1.0.0',
-      description: 'A real-time collaborative todo list application API',
+      title: "Live Collaborative Todo API",
+      version: "1.0.0",
+      description: "A real-time collaborative todo list application API",
       contact: {
-        name: 'API Support',
-        email: 'support@example.com'
-      }
+        name: "API Support",
+        email: "support@example.com",
+      },
     },
     servers: [
       {
-        url: config.nodeEnv === 'production' 
-          ? 'https://your-production-url.com' 
-          : `http://localhost:${config.port}`,
-        description: config.nodeEnv === 'production' ? 'Production server' : 'Development server'
-      }
+        url:
+          config.nodeEnv === "production"
+            ? "https://your-production-url.com"
+            : `http://localhost:${config.port}`,
+        description:
+          config.nodeEnv === "production"
+            ? "Production server"
+            : "Development server",
+      },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          description: 'Enter JWT token in the format: Bearer <token>'
-        }
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Enter JWT token in the format: Bearer <token>",
+        },
       },
       responses: {
         UnauthorizedError: {
-          description: 'Access token is missing or invalid',
+          description: "Access token is missing or invalid",
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   error: {
-                    type: 'string',
-                    example: 'Access token required'
-                  }
-                }
-              }
-            }
-          }
+                    type: "string",
+                    example: "Access token required",
+                  },
+                },
+              },
+            },
+          },
         },
         ValidationError: {
-          description: 'Validation error',
+          description: "Validation error",
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   error: {
-                    type: 'string'
+                    type: "string",
                   },
                   details: {
-                    type: 'string'
-                  }
-                }
-              }
-            }
-          }
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
         },
         InternalServerError: {
-          description: 'Internal server error',
+          description: "Internal server error",
           content: {
-            'application/json': {
+            "application/json": {
               schema: {
-                type: 'object',
+                type: "object",
                 properties: {
                   error: {
-                    type: 'string'
+                    type: "string",
                   },
                   message: {
-                    type: 'string'
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     tags: [
       {
-        name: 'Authentication',
-        description: 'User authentication and authorization endpoints'
+        name: "Authentication",
+        description: "User authentication and authorization endpoints",
       },
       {
-        name: 'Rooms',
-        description: 'Room management endpoints'
+        name: "Rooms",
+        description: "Room management endpoints",
       },
       {
-        name: 'Tasks',
-        description: 'Task management endpoints'
+        name: "Health",
+        description: "Health check endpoints",
       },
-      {
-        name: 'Health',
-        description: 'Health check endpoints'
-      }
-    ]
+    ],
   },
-  apis: [
-    './src/routes/*.ts',
-    './src/controllers/*.ts'
-  ]
+  apis: ["./src/routes/*.ts", "./src/controllers/*.ts"],
 };
 
 export const swaggerSpec = swaggerJsdoc(options);

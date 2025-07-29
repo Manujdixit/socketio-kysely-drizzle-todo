@@ -3,6 +3,7 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "../config/swagger";
 import authRoutes from "./auth";
 import todosRoutes from "./todos";
+import roomsRoutes from "./rooms";
 
 const router = express.Router();
 
@@ -52,6 +53,7 @@ router.use(
 
 router.use("/api/auth", authRoutes);
 router.use("/api", todosRoutes);
+router.use("/api", roomsRoutes);
 
 // Catch-all for unimplemented API routes
 router.use("/api", (_req, res) => {
