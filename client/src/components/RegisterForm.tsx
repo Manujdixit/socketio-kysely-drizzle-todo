@@ -24,7 +24,7 @@ type RegisterFormInputs = z.infer<typeof registerSchema>;
 export const RegisterForm: React.FC<{
   onSubmit: (data: RegisterFormInputs) => void;
   error?: string;
-}> = ({ onSubmit, error }) => {
+}> = ({ onSubmit }) => {
   const {
     register,
     handleSubmit,

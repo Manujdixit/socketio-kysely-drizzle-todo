@@ -9,7 +9,7 @@ import reactLogo from "@/assets/react.svg";
 export const SignIn = () => {
   const { login: setAuth } = useAuth();
   const navigate = useNavigate();
-  const { login, loading, error } = useLogin();
+  const { login, error } = useLogin();
 
   useEffect(() => {
     if (error) toast.error(error);

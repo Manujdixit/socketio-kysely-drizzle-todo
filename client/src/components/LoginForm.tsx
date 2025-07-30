@@ -20,7 +20,7 @@ type LoginFormInputs = z.infer<typeof loginSchema>;
 export const LoginForm: React.FC<{
   onSubmit: (data: LoginFormInputs) => void;
   error?: string;
-}> = ({ onSubmit, error }) => {
+}> = ({ onSubmit }) => {
   const {
     register,
     handleSubmit,

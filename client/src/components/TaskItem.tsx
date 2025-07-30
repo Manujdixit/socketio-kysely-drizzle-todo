@@ -1,4 +1,4 @@
-import { Delete, Edit } from "lucide-react";
+import { Edit } from "lucide-react";
 import React, { useState } from "react";
 import TaskForm from "./TaskForm";
 
@@ -31,7 +31,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onToggleStatus,
   onEdit,
-  onStartEdit,
   onCancelEdit,
   onDelete,
   isEditing,

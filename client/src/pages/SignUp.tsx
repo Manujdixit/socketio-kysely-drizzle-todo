@@ -9,7 +9,7 @@ import reactLogo from "@/assets/react.svg";
 export const SignUp = () => {
   const { login: setAuth } = useAuth();
   const navigate = useNavigate();
-  const { register, loading, error } = useRegister();
+  const { register, error } = useRegister();
 
   useEffect(() => {
     if (error) toast.error(error);

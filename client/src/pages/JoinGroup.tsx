@@ -29,12 +29,13 @@ const JoinGroup: React.FC = () => {
           },
           (error) => {
             // ignore scan errors
+            console.log(error);
           }
         );
       }
     }, 300);
   };
-  const { joinRoomApi, loading, error, success } = useJoinRoomApi();
+  const { joinRoomApi, loading, error } = useJoinRoomApi();
   const navigate = useNavigate();
 
   const handleJoin = async () => {

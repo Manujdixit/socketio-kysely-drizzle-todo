@@ -4,7 +4,6 @@ import MiniCalendar from "./ui/MiniCalendar";
 import JoinGroupSheet from "./JoinGroupSheet";
 import { useUserGroups } from "../hooks/useUserGroups";
 import { useNavigate } from "react-router-dom";
-import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 
 interface SidebarProps {
