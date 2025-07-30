@@ -10,31 +10,43 @@ const JoinGroup: React.FC = () => {
   const [showScanner, setShowScanner] = useState(false);
   const scannerRef = useRef<HTMLDivElement>(null);
 
-  const handleScanQr = () => {
+  const handleScanQr = async () => {
     setShowScanner(true);
-    setTimeout(() => {
-      if (scannerRef.current) {
-        const html5Qr = new Html5Qrcode(scannerRef.current.id);
-        html5Qr.start(
-          { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: 200,
-          },
-          (decodedText) => {
-            setRoomId(decodedText);
-            setShowScanner(false);
-            html5Qr.stop();
-            toast.success("QR code scanned!");
-          },
-          (error) => {
-            // ignore scan errors
-            console.log(error);
-          }
-        );
+
+    try {
+      const devices = await Html5Qrcode.getCameras();
+
+      if (!devices.length) {
+        toast.error("No cameras found");
+        setShowScanner(false);
+        return;
       }
-    }, 300);
+
+      const rearCamera =
+        devices.find((d) => d.label.toLowerCase().includes("back")) ||
+        devices[0]; // fallback to any
+
+      const html5Qr = new Html5Qrcode("qr-scanner");
+      await html5Qr.start(
+        { deviceId: rearCamera.id }, // Use deviceId instead of facingMode
+        { fps: 10, qrbox: 200 },
+        (decodedText) => {
+          setRoomId(decodedText);
+          setShowScanner(false);
+          html5Qr.stop();
+          toast.success("QR code scanned!");
+        },
+        (err) => {
+          console.warn("Scan error", err);
+        }
+      );
+    } catch (err) {
+      console.error("Camera init error:", err);
+      toast.error("Failed to access camera");
+      setShowScanner(false);
+    }
   };
+
   const { joinRoomApi, loading, error } = useJoinRoomApi();
   const navigate = useNavigate();
 
