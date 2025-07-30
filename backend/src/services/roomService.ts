@@ -42,6 +42,18 @@ export async function createRoom(room_name: string, userId: string) {
   return room;
 }
 
+export async function addUserToRoom(userId: string, roomId: string) {
+  // Add user to room membership
+  await db
+    .insertInto("roomsUsers")
+    .values({
+      room_id: roomId,
+      user_id: userId,
+      created_at: new Date(),
+      updated_at: new Date(),
+    })
+    .execute();
+}
 export async function isUserInRoom(userId: string, roomId: string) {
   const membership = await db
     .selectFrom("roomsUsers")

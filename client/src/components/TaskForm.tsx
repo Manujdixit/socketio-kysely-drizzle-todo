@@ -1,24 +1,45 @@
 import React, { useState } from "react";
 import { useSocketContext } from "../context/SocketProvider";
-import { X } from "lucide-react";
+import { Delete, Notebook, X } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface TaskFormProps {
   onClose?: () => void;
   isSheet?: boolean;
+  roomId?: string;
+  initialTitle?: string;
+  initialNotes?: string;
+  isEdit?: boolean;
+  onUpdate?: (updated: { title: string; todo_description?: string }) => void;
+  onDelete?: () => void;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
-  const [title, setTitle] = useState("");
-  const [notes, setNotes] = useState("");
+const TaskForm: React.FC<TaskFormProps> = ({
+  onClose,
+  isSheet = false,
+  roomId,
+  initialTitle = "",
+  initialNotes = "",
+  isEdit = false,
+  onUpdate,
+  onDelete,
+}) => {
+  const [title, setTitle] = useState(initialTitle);
+  const [notes, setNotes] = useState(initialNotes);
 
   const socket = useSocketContext();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+    if (isEdit && onUpdate) {
+      onUpdate({ title, todo_description: notes });
+      return;
+    }
     const payload = {
       title,
       todo_description: notes,
       user_id: localStorage.getItem("token"),
+      room_id: roomId,
     };
     console.log("[Socket] Emitting create_task:", payload);
     socket.emit("create_task", payload);
@@ -42,12 +63,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
               <h2 className="text-xl font-bold text-[var(--foreground)]">
-                Create new task
+                {isEdit ? "Edit task" : "Create new task"}
               </h2>
               {onClose && (
                 <button
                   type="button"
                   onClick={onClose}
+                  title="Close"
+                  aria-label="Close"
                   className="text-[var(--muted-foreground)] hover:text-[var(--destructive)] p-2 rounded-full hover:bg-[var(--muted)] transition"
                 >
                   <X size={20} />
@@ -72,8 +95,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
                   />
                 </div>
 
-                {/* Removed List field */}
-
                 <div>
                   <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                     Notes
@@ -86,38 +107,36 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
                     className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)] resize-none"
                   />
                 </div>
-
-                {/* Removed Priority field */}
-
-                {/* <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                    Time
-                  </label>
-                  <input
-                    type="time"
-                    className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
-                  />
-                </div> */}
               </form>
             </div>
 
             {/* Footer */}
             <div className="p-6 border-t border-[var(--border)] bg-[var(--muted)]/20">
               <div className="flex gap-3">
-                <button
+                {isEdit && onDelete && (
+                  <Button
+                    onClick={onDelete}
+                    className="w-1/2"
+                    variant={"destructive"}
+                  >
+                    <Delete />
+                    <span>Delete</span>
+                  </Button>
+                )}
+                <Button
                   type="submit"
                   onClick={handleSubmit}
-                  className="flex-1 py-3 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-xl font-semibold hover:bg-[var(--primary)]/90 transition shadow-sm"
+                  className={isEdit ? "w-1/2" : "w-full"}
                 >
-                  Create Task
-                </button>
-                <button
-                  type="button"
-                  className="px-6 py-3 bg-[var(--muted)] text-[var(--muted-foreground)] rounded-xl font-semibold hover:bg-[var(--muted)]/80 transition"
-                  onClick={onClose}
-                >
-                  Cancel
-                </button>
+                  {isEdit ? (
+                    "Update"
+                  ) : (
+                    <span className="flex justify-center items-center gap-2">
+                      <Notebook />
+                      Create Task
+                    </span>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
@@ -131,7 +150,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex justify-between items-center mb-2">
           <span className="font-semibold text-lg text-[var(--foreground)]">
-            Create new task
+            {isEdit ? "Edit task" : "Create new task"}
           </span>
           {onClose && (
             <button
@@ -161,13 +180,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
             className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
           />
         </div>
-        {/* Removed Priority input */}
         <div className="flex gap-2 mt-4">
           <button
             type="submit"
             className="flex-1 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded font-semibold hover:bg-[color-mix(in_oklch,var(--primary),black_10%)] transition"
           >
-            Save
+            {isEdit ? "Update" : "Save"}
           </button>
           <button
             type="button"
@@ -176,6 +194,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
           >
             Cancel
           </button>
+          {isEdit && onDelete && (
+            <button
+              type="button"
+              className="flex-1 py-2 bg-red-500 text-white rounded font-semibold hover:bg-red-600 transition"
+              onClick={onDelete}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </form>
     </div>

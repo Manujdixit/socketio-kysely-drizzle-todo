@@ -35,6 +35,7 @@ export function useLogin() {
         throw new Error(err.message || "Login failed");
       }
       const { user, token } = await res.json();
+      localStorage.setItem("manuj_user_id", user.user_id);
       setLoading(false);
       return { user, token };
     } catch (e: any) {

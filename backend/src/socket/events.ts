@@ -45,7 +45,6 @@ export function registerSocketEvents(io: Server) {
 
     // Create task
     socket.on("create_task", async (data, cb) => {
-      console.log("[Socket] Received create_task:", data);
       try {
         const todo = await createTodo(data);
         console.log("[Socket] Created todo:", todo);

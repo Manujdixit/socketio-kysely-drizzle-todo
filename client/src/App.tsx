@@ -7,6 +7,7 @@ import RequireAuth from "./context/RequireAuth";
 import { Toaster } from "./components/ui/sonner";
 import { Dashboard } from "./pages/Dashboard";
 import { SocketProvider } from "./context/SocketProvider";
+import GroupPage from "./pages/GroupPage";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -29,6 +30,14 @@ function AppRoutes() {
         element={
           <RequireAuth>
             <Dashboard />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/group/:roomId"
+        element={
+          <RequireAuth>
+            <GroupPage />
           </RequireAuth>
         }
       />

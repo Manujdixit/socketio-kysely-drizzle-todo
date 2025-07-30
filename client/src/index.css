@@ -215,3 +215,12 @@ body {
     transform: rotate(0deg);
   }
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--sidebar);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sidebar-border);
+  border-radius: 8px;
+}

@@ -105,21 +105,19 @@ const TaskList: React.FC = () => {
   return (
     <div className="w-full">
       <div className="flex justify-end mb-2"></div>
-      <div className="rounded-2xl bg-[var(--card)] shadow-lg p-2 sm:p-4 md:p-6 border border-[var(--border)]">
-        <div className="grid grid-cols-1 gap-4 md:gap-6">
-          {optimisticTasks.map((task) => (
-            <TaskItem
-              key={task.todo_id}
-              task={task}
-              onToggleStatus={() => handleToggleStatus(task.todo_id)}
-              onEdit={(newTitle) => handleEdit(task.todo_id, newTitle)}
-              onStartEdit={() => handleStartEdit(task.todo_id)}
-              onCancelEdit={handleCancelEdit}
-              onDelete={() => handleDelete(task.todo_id)}
-              isEditing={editingId === task.todo_id}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 gap-4 md:gap-6">
+        {optimisticTasks.map((task) => (
+          <TaskItem
+            key={task.todo_id}
+            task={task}
+            onToggleStatus={() => handleToggleStatus(task.todo_id)}
+            onEdit={(newTitle) => handleEdit(task.todo_id, newTitle)}
+            onStartEdit={() => handleStartEdit(task.todo_id)}
+            onCancelEdit={handleCancelEdit}
+            onDelete={() => handleDelete(task.todo_id)}
+            isEditing={editingId === task.todo_id}
+          />
+        ))}
       </div>
     </div>
   );

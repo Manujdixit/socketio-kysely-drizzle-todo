@@ -73,7 +73,7 @@ const MiniCalendar: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
   }
 
   return (
-    <div className="px-3 py-4">
+    <div className="py-4">
       <div className="bg-[var(--card)] rounded-xl p-3 border border-[var(--border)] shadow-sm">
         {/* Calendar Header */}
         <div className="flex items-center justify-between mb-3">
