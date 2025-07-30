@@ -144,7 +144,7 @@ export async function getAllTodosForMe(user_id: string, date?: Date) {
   let roomTodosQuery = db
     .selectFrom("todos")
     .selectAll()
-    .where("user_id", "!=", user_id)
+    .where("user_id", "=", user_id)
     .where("room_id", "is not", null);
 
   let privateTodosQuery = db
