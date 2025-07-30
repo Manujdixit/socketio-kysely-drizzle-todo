@@ -1,6 +1,7 @@
 import { db } from "../database/kysely";
 import { v4 as uuidv4 } from "uuid";
 import { hashPassword, comparePassword, generateToken } from "../utils/auth";
+import { expressionBuilder, sql } from "kysely";
 
 export async function registerUser({
   user_name,
@@ -136,4 +137,24 @@ export async function getUserProfile(user_id: string) {
     };
   }
   return user;
+}
+
+export async function getAllTodosForMe(user_id: string, date?: Date) {
+  // Room todos: tasks where user is a member of the room
+  let roomTodosQuery = db
+    .selectFrom("todos")
+    .selectAll()
+    .where("user_id", "!=", user_id)
+    .where("room_id", "is not", null);
+
+  let privateTodosQuery = db
+    .selectFrom("todos")
+    .selectAll()
+    .where("user_id", "=", user_id)
+    .where("room_id", "is", null);
+
+  const roomTodos = await roomTodosQuery.execute();
+  const privateTodos = await privateTodosQuery.execute();
+
+  return [...roomTodos, ...privateTodos];
 }

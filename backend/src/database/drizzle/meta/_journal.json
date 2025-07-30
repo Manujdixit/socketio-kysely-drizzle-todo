@@ -15,6 +15,27 @@
       "when": 1753726748835,
       "tag": "0001_skinny_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1753808700029,
+      "tag": "0002_round_vampiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1753810966354,
+      "tag": "0003_overconfident_black_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1753812412756,
+      "tag": "0004_lucky_scorpion",
+      "breakpoints": true
     }
   ]
 }

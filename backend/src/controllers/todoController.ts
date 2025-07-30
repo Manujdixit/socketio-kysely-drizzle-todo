@@ -49,7 +49,7 @@ export const createTodo = async (req: Request, res: Response) => {
    *     parameters:
    *       - in: path
    *         name: id
-   *         required: true
+   *         required: false
    *         schema:
    *           type: string
    *         description: Room ID
@@ -77,13 +77,17 @@ export const createTodo = async (req: Request, res: Response) => {
    *         description: Failed to create todo
    */
   const roomId = req.params.id;
-  const { title, todo_description, assigned_user_id } = req.body;
+  const { title, todo_description, last_time } = req.body;
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     const inserted = await todoService.createTodo({
       title,
       todo_description,
       room_id: roomId,
-      assigned_user_id,
+      last_time,
+      user_id: req.user.user_id,
     });
     res.status(201).json(inserted);
   } catch (err) {
@@ -134,15 +138,13 @@ export const updateTodo = async (req: Request, res: Response) => {
    *         description: Failed to update todo
    */
   const todoId = Number(req.params.id);
-  const { title, todo_description, status, assigned_user_id, editing_user_id } =
-    req.body;
+  const { title, todo_description, status, last_time } = req.body;
   try {
     const updated = await todoService.updateTodo(todoId, {
       title,
       todo_description,
       status,
-      assigned_user_id,
-      editing_user_id,
+      last_time,
     });
     res.json(updated);
   } catch (err) {

@@ -6,6 +6,7 @@ import { useAuth } from "./hooks/useAuth";
 import RequireAuth from "./context/RequireAuth";
 import { Toaster } from "./components/ui/sonner";
 import { Dashboard } from "./pages/Dashboard";
+import { SocketProvider } from "./context/SocketProvider";
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
@@ -39,10 +40,12 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster position="top-center" />
-      </BrowserRouter>
+      <SocketProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster position="top-center" />
+        </BrowserRouter>
+      </SocketProvider>
     </AuthProvider>
   );
 }

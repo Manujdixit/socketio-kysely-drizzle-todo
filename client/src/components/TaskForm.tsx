@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSocketContext } from "../context/SocketProvider";
 import { X } from "lucide-react";
 
 interface TaskFormProps {
@@ -8,15 +9,22 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
   const [title, setTitle] = useState("");
-  const [list, setList] = useState("");
   const [notes, setNotes] = useState("");
-  const [priority, setPriority] = useState(1);
 
+  const socket = useSocketContext();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log({ title, list, notes, priority });
+    if (!title.trim()) return;
+    const payload = {
+      title,
+      todo_description: notes,
+      user_id: localStorage.getItem("token"),
+    };
+    console.log("[Socket] Emitting create_task:", payload);
+    socket.emit("create_task", payload);
     if (onClose) onClose();
+    setTitle("");
+    setNotes("");
   };
 
   if (isSheet) {
@@ -64,24 +72,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                    List
-                  </label>
-                  <select
-                    value={list}
-                    onChange={(e) => setList(e.target.value)}
-                    className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
-                  >
-                    <option value="">Select a list...</option>
-                    <option value="personal">Personal</option>
-                    <option value="work">Work</option>
-                    <option value="mobal">Mobal Project</option>
-                    <option value="futur">Futur Project</option>
-                    <option value="diet">Diet</option>
-                    <option value="books">List of Book</option>
-                  </select>
-                </div>
+                {/* Removed List field */}
 
                 <div>
                   <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
@@ -96,24 +87,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                    Priority
-                  </label>
-                  <select
-                    value={priority}
-                    onChange={(e) => setPriority(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
-                  >
-                    <option value={1}>Low Priority</option>
-                    <option value={2}>Normal Priority</option>
-                    <option value={3}>High Priority</option>
-                    <option value={4}>Urgent</option>
-                    <option value={5}>Critical</option>
-                  </select>
-                </div>
+                {/* Removed Priority field */}
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                     Time
                   </label>
@@ -121,7 +97,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
                     type="time"
                     className="w-full px-4 py-3 bg-[var(--input)] border border-[var(--border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
                   />
-                </div>
+                </div> */}
               </form>
             </div>
 
@@ -176,37 +152,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, isSheet = false }) => {
             className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
           />
         </div>
-        <div className="flex gap-2">
-          <select
-            value={list}
-            onChange={(e) => setList(e.target.value)}
-            className="flex-1 px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
-          >
-            <option value="">No list</option>
-            <option value="personal">Personal</option>
-            <option value="work">Work</option>
-          </select>
+        <div>
           <input
             type="text"
             placeholder="Add notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="flex-1 px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm text-[var(--muted-foreground)]">
-            Add to priority
-          </label>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={priority}
-            onChange={(e) => setPriority(Number(e.target.value))}
-            className="w-16 px-2 py-1 bg-[var(--input)] border border-[var(--border)] rounded"
-          />
-        </div>
+        {/* Removed Priority input */}
         <div className="flex gap-2 mt-4">
           <button
             type="submit"

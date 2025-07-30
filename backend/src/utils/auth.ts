@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { config } from '../config';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { config } from "../config";
 
 export interface JWTPayload {
   user_id: string;
@@ -13,14 +13,17 @@ export const hashPassword = async (password: string): Promise<string> => {
   return await bcrypt.hash(password, saltRounds);
 };
 
-export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
+export const comparePassword = async (
+  password: string,
+  hash: string
+): Promise<boolean> => {
   return await bcrypt.compare(password, hash);
 };
 
 export const generateToken = (payload: JWTPayload): string => {
-  return jwt.sign(payload, config.jwtSecret, { 
-    expiresIn: '24h',
-    issuer: 'live-collaborative-todo'
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: "24h",
+    issuer: "live-collaborative-todo",
   });
 };
 

@@ -212,3 +212,61 @@ export const getProfile = async (req: Request, res: Response) => {
     }
   }
 };
+
+/**
+ * @swagger
+ * /api/auth/my-todos:
+ *   get:
+ *     summary: Get all todos for the current user (private and room todos)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: false
+ *         description: Filter todos by creation date (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Todos retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 roomTodos:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Todo'
+ *                 privateTodos:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Todo'
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+export const getTodosForMe = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const date = req.query.date ? new Date(String(req.query.date)) : undefined;
+    const todos = await authService.getAllTodosForMe(req.user.user_id, date);
+    res.status(200).json(todos);
+  } catch (error: any) {
+    if (error.status) {
+      res.status(error.status).json(error);
+    } else {
+      console.error("Get todos error:", error);
+      res.status(500).json({
+        error: "Failed to get todos",
+        message: "An error occurred while retrieving todos",
+      });
+    }
+  }
+};

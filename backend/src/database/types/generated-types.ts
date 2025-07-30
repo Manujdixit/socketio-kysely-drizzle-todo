@@ -41,16 +41,15 @@ export interface TaskLocks {
 }
 
 export interface Todos {
-  assigned_user_id: string | null;
   created_at: Generated<Timestamp>;
-  editing_user_id: string | null;
-  last_edited_at: Timestamp | null;
-  room_id: string;
+  last_time: Timestamp | null;
+  room_id: string | null;
   status: Generated<string>;
   title: string;
   todo_description: string | null;
   todo_id: Generated<number>;
   updated_at: Generated<Timestamp>;
+  user_id: string | null;
 }
 
 export interface Users {

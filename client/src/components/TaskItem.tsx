@@ -2,9 +2,10 @@ import React, { useState } from "react";
 
 interface TaskItemProps {
   task: {
-    id: number;
+    todo_id: number;
     title: string;
     status: string;
+    todo_description?: string;
     tag?: string | null;
     avatars?: string[];
     time?: string;

@@ -1,104 +1,122 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TaskItem from "./TaskItem";
-
-const initialTasks = [
-  {
-    id: 1,
-    title: "Read a book",
-    status: "incomplete",
-    tag: null,
-    avatars: [],
-    time: "08:00 - 09:00",
-  },
-  {
-    id: 2,
-    title: "Wireframing new product",
-    status: "incomplete",
-    tag: null,
-    avatars: [],
-    time: "09:00 - 11:00",
-  },
-  {
-    id: 3,
-    title: "Moodboard Landing Page",
-    status: "incomplete",
-    tag: "Mobal Project",
-    avatars: [],
-    time: "11:00 - 13:00",
-  },
-  {
-    id: 4,
-    title: "Weekly meeting",
-    status: "incomplete",
-    tag: "Futur Project",
-    avatars: ["🟢", "🟣", "🔵"],
-    time: "13:00 - 14:00",
-  },
-  {
-    id: 5,
-    title: "Design PPT for Sharing Session #2",
-    status: "incomplete",
-    tag: null,
-    avatars: [],
-    time: "14:00 - 16:00",
-  },
-  {
-    id: 6,
-    title: "Ngopi with Bojo",
-    status: "incomplete",
-    tag: null,
-    avatars: [],
-    time: "19:00 - 20:00",
-  },
-];
+import { useSocketContext } from "../context/SocketProvider";
+import { useUserTodos } from "../hooks/useUserTodos";
+import { useOptimistic } from "../hooks/useOptimistic";
 
 const TaskList: React.FC = () => {
-  const [tasks, setTasks] = useState(initialTasks);
+  const { tasks, setTasks, loading, error } = useUserTodos();
   const [editingId, setEditingId] = useState<number | null>(null);
+  const socket = useSocketContext();
+  // Optimistic state for tasks
+  const [optimisticTasks, optimisticUpdate, rollback] =
+    useOptimistic<any[]>(tasks);
+  // Sync optimistic state with actual tasks when tasks change
+  useEffect(() => {
+    optimisticUpdate(tasks);
+    // eslint-disable-next-line
+  }, [tasks]);
 
-  const handleToggleStatus = (id: number) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id
-          ? {
-              ...task,
-              status: task.status === "complete" ? "incomplete" : "complete",
-            }
-          : task
+  useEffect(() => {
+    if (!socket) return;
+    // Listen for real-time events
+    socket.on("task_created", (task: any) => {
+      setTasks((prev: any[]) => [...prev, task]);
+    });
+    socket.on("task_updated", (updated: any) => {
+      setTasks((prev: any[]) =>
+        prev.map((t) => (t.todo_id === updated.todo_id ? updated : t))
+      );
+    });
+    socket.on("task_deleted", (todo_id: number) => {
+      setTasks((prev: any[]) => prev.filter((t) => t.todo_id !== todo_id));
+    });
+    // Rollback on error from server
+    socket.on("error", (err: any) => {
+      if (err && err.error) {
+        rollback();
+      }
+    });
+    return () => {
+      socket.off("task_created");
+      socket.off("task_updated");
+      socket.off("task_deleted");
+      socket.off("error");
+    };
+  }, [socket, setTasks, rollback]);
+
+  const handleToggleStatus = (todo_id: number) => {
+    const task = optimisticTasks.find((t) => t.todo_id === todo_id);
+    if (!task) return;
+    const newStatus = task.status === "complete" ? "incomplete" : "complete";
+    // Optimistically update UI
+    optimisticUpdate(
+      optimisticTasks.map((t) =>
+        t.todo_id === todo_id ? { ...t, status: newStatus } : t
       )
     );
+    socket.emit("update_task", { ...task, status: newStatus }, (res: any) => {
+      if (res && res.error) rollback();
+    });
   };
 
-  const handleEdit = (id: number, newTitle: string) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? { ...task, title: newTitle } : task))
+  const handleEdit = (todo_id: number, newTitle: string) => {
+    const task = optimisticTasks.find((t) => t.todo_id === todo_id);
+    if (!task) return;
+    // Optimistically update UI
+    optimisticUpdate(
+      optimisticTasks.map((t) =>
+        t.todo_id === todo_id ? { ...t, title: newTitle } : t
+      )
     );
+    socket.emit("update_task", { ...task, title: newTitle }, (res: any) => {
+      if (res && res.error) rollback();
+    });
     setEditingId(null);
   };
 
-  const handleStartEdit = (id: number) => setEditingId(id);
+  const handleStartEdit = (todo_id: number) => setEditingId(todo_id);
   const handleCancelEdit = () => setEditingId(null);
 
-  const handleDelete = (id: number) => {
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+  const handleDelete = (todo_id: number) => {
+    // Optimistically remove from UI
+    optimisticUpdate(optimisticTasks.filter((t) => t.todo_id !== todo_id));
+    socket.emit("delete_task", { todo_id }, (res: any) => {
+      if (res && res.error) rollback();
+    });
   };
 
   // For adding new tasks, a handler can be added here and passed down as needed
 
+  if (loading) {
+    return (
+      <div className="w-full max-w-2xl mx-auto mt-8 text-center">
+        Loading tasks...
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="w-full max-w-2xl mx-auto mt-8 text-center text-red-500">
+        {error}
+      </div>
+    );
+  }
   return (
-    <div className="w-full max-w-2xl mx-auto mt-8">
-      <div className="rounded-2xl bg-[var(--card)] shadow-lg p-4 md:p-6 border border-[var(--border)]">
-        <div className="flex flex-col gap-4">
-          {tasks.map((task) => (
+    <div className="w-full">
+      <div className="flex justify-end mb-2"></div>
+      <div className="rounded-2xl bg-[var(--card)] shadow-lg p-2 sm:p-4 md:p-6 border border-[var(--border)]">
+        <div className="grid grid-cols-1 gap-4 md:gap-6">
+          {optimisticTasks.map((task) => (
             <TaskItem
-              key={task.id}
+              key={task.todo_id}
               task={task}
-              onToggleStatus={() => handleToggleStatus(task.id)}
-              onEdit={(newTitle) => handleEdit(task.id, newTitle)}
-              onStartEdit={() => handleStartEdit(task.id)}
+              onToggleStatus={() => handleToggleStatus(task.todo_id)}
+              onEdit={(newTitle) => handleEdit(task.todo_id, newTitle)}
+              onStartEdit={() => handleStartEdit(task.todo_id)}
               onCancelEdit={handleCancelEdit}
-              onDelete={() => handleDelete(task.id)}
-              isEditing={editingId === task.id}
+              onDelete={() => handleDelete(task.todo_id)}
+              isEditing={editingId === task.todo_id}
             />
           ))}
         </div>

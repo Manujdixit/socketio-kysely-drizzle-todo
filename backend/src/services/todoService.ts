@@ -1,5 +1,6 @@
 import { db } from "../database/kysely";
 import { sql } from "kysely";
+import { verifyToken } from "../utils/auth";
 
 export async function getTodosByRoom(roomId: string) {
   return db
@@ -13,21 +14,25 @@ export async function createTodo({
   title,
   todo_description,
   room_id,
-  assigned_user_id,
+  user_id,
+  last_time,
 }: {
   title: string;
   todo_description?: string;
-  room_id: string;
-  assigned_user_id?: string;
+  room_id?: string;
+  user_id: string;
+  last_time?: Date;
 }) {
+  user_id = verifyToken(user_id).user_id;
   return db
     .insertInto("todos")
     .values({
       title,
       todo_description,
       room_id,
-      assigned_user_id,
+      user_id,
       status: "pending",
+      last_time,
     })
     .returningAll()
     .executeTakeFirst();
@@ -39,14 +44,12 @@ export async function updateTodo(
     title,
     todo_description,
     status,
-    assigned_user_id,
-    editing_user_id,
+    last_time,
   }: {
     title?: string;
     todo_description?: string;
     status?: string;
-    assigned_user_id?: string;
-    editing_user_id?: string;
+    last_time: Date;
   }
 ) {
   return db
@@ -55,8 +58,7 @@ export async function updateTodo(
       title,
       todo_description,
       status,
-      assigned_user_id,
-      editing_user_id,
+      last_time,
       updated_at: sql`now()`,
     })
     .where("todo_id", "=", todoId)

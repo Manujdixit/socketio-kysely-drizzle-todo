@@ -1,4 +1,6 @@
 import { Server, Socket } from "socket.io";
+// Map userId to Set of socket ids
+const userSockets = new Map();
 import {
   getTodosByRoom,
   createTodo,
@@ -9,6 +11,22 @@ import { isUserInRoom } from "../services/roomService";
 
 export function registerSocketEvents(io: Server) {
   io.on("connection", (socket: Socket) => {
+    console.log("[Socket] Client connected:", socket.id);
+    // Track userId for this socket (assume frontend emits 'identify' after connect)
+    socket.on("identify", (userId) => {
+      socket.data.userId = userId;
+      if (!userSockets.has(userId)) userSockets.set(userId, new Set());
+      userSockets.get(userId).add(socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      const userId = socket.data.userId;
+      if (userId && userSockets.has(userId)) {
+        userSockets.get(userId).delete(socket.id);
+        if (userSockets.get(userId).size === 0) userSockets.delete(userId);
+      }
+    });
+
     // Join room
     socket.on("join_room", async ({ roomId, userId }) => {
       if (!(await isUserInRoom(userId, roomId))) {
@@ -27,11 +45,26 @@ export function registerSocketEvents(io: Server) {
 
     // Create task
     socket.on("create_task", async (data, cb) => {
+      console.log("[Socket] Received create_task:", data);
       try {
         const todo = await createTodo(data);
-        io.to(data.room_id).emit("task_created", todo);
+        console.log("[Socket] Created todo:", todo);
+        if (data.room_id) {
+          io.to(data.room_id).emit("task_created", todo);
+        } else {
+          // Private: emit only to all sockets of this user
+          const userId = socket.data.userId;
+          if (userId && userSockets.has(userId)) {
+            for (const sid of userSockets.get(userId)) {
+              io.to(sid).emit("task_created", todo);
+            }
+          } else {
+            socket.emit("task_created", todo);
+          }
+        }
         cb?.(todo);
       } catch (err) {
+        console.error("[Socket] Failed to create task:", err);
         cb?.({ error: "Failed to create task" });
       }
     });
@@ -40,7 +73,19 @@ export function registerSocketEvents(io: Server) {
     socket.on("update_task", async (data, cb) => {
       try {
         const todo = await updateTodo(data.todo_id, data);
-        io.to(data.room_id).emit("task_updated", todo);
+        if (data.room_id) {
+          io.to(data.room_id).emit("task_updated", todo);
+        } else {
+          // Private: emit only to all sockets of this user
+          const userId = socket.data.userId;
+          if (userId && userSockets.has(userId)) {
+            for (const sid of userSockets.get(userId)) {
+              io.to(sid).emit("task_updated", todo);
+            }
+          } else {
+            socket.emit("task_updated", todo);
+          }
+        }
         cb?.(todo);
       } catch (err) {
         cb?.({ error: "Failed to update task" });
@@ -51,7 +96,19 @@ export function registerSocketEvents(io: Server) {
     socket.on("delete_task", async ({ todo_id, room_id }, cb) => {
       try {
         await deleteTodo(todo_id);
-        io.to(room_id).emit("task_deleted", { todo_id });
+        if (room_id) {
+          io.to(room_id).emit("task_deleted", todo_id);
+        } else {
+          // Private: emit only to all sockets of this user
+          const userId = socket.data.userId;
+          if (userId && userSockets.has(userId)) {
+            for (const sid of userSockets.get(userId)) {
+              io.to(sid).emit("task_deleted", todo_id);
+            }
+          } else {
+            socket.emit("task_deleted", todo_id);
+          }
+        }
         cb?.({ success: true });
       } catch (err) {
         cb?.({ error: "Failed to delete task" });

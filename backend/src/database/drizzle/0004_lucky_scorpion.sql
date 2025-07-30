@@ -1,0 +1,1 @@
+ALTER TABLE "todos" ADD COLUMN "last_time" timestamp;

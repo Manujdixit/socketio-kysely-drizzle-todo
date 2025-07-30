@@ -1,0 +1,51 @@
+/* Sidebar custom styles for lint error fixes */
+.sidebar-custom {
+  font-family: "Inter", sans-serif;
+  min-width: 64px;
+}
+.sidebar-custom[data-open="true"] {
+  min-width: 260px;
+}
+.sidebar-toggle-btn {
+  z-index: 10;
+}
+.sidebar-list-dot[data-color] {
+  background: var(--sidebar-primary);
+}
+.sidebar-list-dot[data-color="var(--sidebar-primary)"] {
+  background: var(--sidebar-primary);
+}
+.sidebar-list-dot[data-color="var(--sidebar-accent)"] {
+  background: var(--sidebar-accent);
+}
+.sidebar-list-dot[data-color="var(--chart-2)"] {
+  background: var(--chart-2);
+}
+.sidebar-list-dot[data-color="var(--chart-3)"] {
+  background: var(--chart-3);
+}
+.sidebar-list-dot[data-color="var(--chart-4)"] {
+  background: var(--chart-4);
+}
+.sidebar-list-dot[data-color="var(--chart-5)"] {
+  background: var(--chart-5);
+}
+.sidebar-list-dot[data-color="var(--muted)"] {
+  background: var(--muted);
+}
+
+body {
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  background: var(--background, #f7f8fa);
+  color: var(--foreground, #18181b);
+  letter-spacing: -0.01em;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: var(--sidebar);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sidebar-border);
+  border-radius: 8px;
+}

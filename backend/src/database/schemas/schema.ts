@@ -29,12 +29,11 @@ export const users = pgTable("users", {
 export const todos = pgTable("todos", {
   todo_id: serial("todo_id").primaryKey(),
   todo_title: varchar("title", { length: 100 }).notNull(),
-  room_id: uuid("room_id").notNull(),
+  room_id: uuid("room_id"),
+  user_id: uuid("user_id"),
   todo_description: varchar("todo_description", { length: 255 }),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
-  assigned_user_id: uuid("assigned_user_id"),
-  editing_user_id: uuid("editing_user_id"),
-  last_edited_at: timestamp("last_edited_at"),
+  last_time: timestamp("last_time"),
   created_at: timestamp("created_at").notNull().defaultNow(),
   updated_at: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -66,13 +65,17 @@ export const userSessions = pgTable("user_sessions", {
 });
 
 // Task edit locks for conflict resolution
-export const taskLocks = pgTable("task_locks", {
-  todo_id: integer("todo_id").notNull(),
-  user_id: uuid("user_id").notNull(),
-  locked_at: timestamp("locked_at").notNull().defaultNow(),
-  expires_at: timestamp("expires_at").notNull(),
-}, (table) => [
-  primaryKey({
-    columns: [table.todo_id],
-  }),
-]);
+export const taskLocks = pgTable(
+  "task_locks",
+  {
+    todo_id: integer("todo_id").notNull(),
+    user_id: uuid("user_id").notNull(),
+    locked_at: timestamp("locked_at").notNull().defaultNow(),
+    expires_at: timestamp("expires_at").notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.todo_id],
+    }),
+  ]
+);
