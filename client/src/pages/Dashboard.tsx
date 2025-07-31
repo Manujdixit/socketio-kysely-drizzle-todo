@@ -5,25 +5,12 @@ import TaskList from "@/components/TaskList";
 import React, { useEffect } from "react";
 import { useSocketContext } from "../context/SocketProvider";
 import axios from "axios";
-// ...existing code...
 
 export const Dashboard = () => {
   const [showTaskForm, setShowTaskForm] = React.useState(false);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [showGroupSheet, setShowGroupSheet] = React.useState(false);
   const socket = useSocketContext();
-
-  // Fetch all todos for dashboard
-  useEffect(() => {
-    async function fetchTodos() {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/todos/all`,
-        token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
-      );
-    }
-    fetchTodos();
-  }, []);
 
   // Fetch all rooms for user and join them via socket
   useEffect(() => {
