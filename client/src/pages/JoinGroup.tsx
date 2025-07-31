@@ -55,7 +55,7 @@ const JoinGroup: React.FC = () => {
     if (!apiSuccess) return;
     // Then, join room via socket
     const socket = connectSocket();
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("manuj_user_id");
     socket.emit(
       "join_room",
       { roomId, userId },

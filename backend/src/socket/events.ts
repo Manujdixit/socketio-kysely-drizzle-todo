@@ -32,7 +32,12 @@ export function registerSocketEvents(io: Server) {
 
     // Join room
     socket.on("join_room", async ({ roomId, userId }, cb) => {
-      if (!(await isUserInRoom(userId, roomId))) {
+      console.log(
+        `[Socket] join_room called with userId=${userId}, roomId=${roomId}`
+      );
+      const inRoom = await isUserInRoom(userId, roomId);
+      console.log(`[Socket] isUserInRoom result:`, inRoom);
+      if (!inRoom) {
         socket.emit("error", { error: "User not in room" });
         cb?.({ success: false, message: "User not in room" });
         return;
