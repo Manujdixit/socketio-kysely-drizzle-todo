@@ -33,6 +33,7 @@ export const Dashboard = () => {
         open={sidebarOpen}
         setOpen={setSidebarOpen}
         onCreateGroup={() => setShowGroupSheet(true)}
+        sheetsOpen={showTaskForm || showGroupSheet}
       />
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Fixed Header */}

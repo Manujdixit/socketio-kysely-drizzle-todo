@@ -1,6 +1,7 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
+import { Menu } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface AppLayoutProps {
   showGroupSheet?: boolean;
   groupSheetSidebar?: React.ReactNode;
   onTaskButtonClick?: () => void;
+  sheetsOpen?: boolean;
 }
 
 const AppLayout: React.FC<AppLayoutProps> = ({
@@ -18,50 +20,48 @@ const AppLayout: React.FC<AppLayoutProps> = ({
   showGroupSheet = false,
   groupSheetSidebar,
   onTaskButtonClick,
+  sheetsOpen = false,
 }) => {
+  const userName =
+    typeof window !== "undefined"
+      ? localStorage.getItem("user_name") || "User"
+      : "User";
   return (
     <div className="flex h-screen bg-[var(--background)] flex-row overflow-hidden">
-      {showSidebar && <Sidebar {...sidebarProps} />}
+      {showSidebar && <Sidebar {...sidebarProps} sheetsOpen={sheetsOpen} />}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Common Header */}
         <div className="flex-shrink-0 px-2 sm:px-4 md:px-12 py-4 md:py-8 border-b border-[var(--border)]">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2 tracking-tight">
-                Good Morning, Sullivan!{" "}
-                <span className="text-2xl wave-hand">👋</span>
-              </h1>
-              <div className="text-base text-[var(--muted-foreground)] font-medium">
-                Today,{" "}
-                {new Date().toLocaleDateString(undefined, {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+              <div className="flex items-center gap-3 mb-2">
+                {/* Sidebar toggle button - inline with Good Morning text */}
+                {showSidebar && sidebarProps.setOpen && (
+                  <button
+                    className="p-2 rounded-lg bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)] transition shadow-sm"
+                    onClick={() => sidebarProps.setOpen(!sidebarProps.open)}
+                    aria-label="Toggle sidebar"
+                    title="Toggle sidebar"
+                  >
+                    <Menu size={20} />
+                  </button>
+                )}
+                <div className="flex flex-col">
+                  <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight">
+                    Hey, {userName}!{" "}
+                    <span className="text-2xl wave-hand">👋</span>
+                  </h1>
+                  <div className="text-base text-[var(--muted-foreground)] font-medium mt-1">
+                    Today,{" "}
+                    {new Date().toLocaleDateString(undefined, {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <button className="px-5 py-2 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] font-semibold hover:bg-[var(--muted)] transition shadow-sm">
-                Today
-              </button>
-              <button
-                className="p-3 rounded-xl bg-[var(--input)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--muted)] transition shadow-sm"
-                title="Calendar view"
-              >
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                  <rect
-                    x="3"
-                    y="5"
-                    width="18"
-                    height="14"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <path d="M3 10h18" stroke="currentColor" strokeWidth="2" />
-                </svg>
-              </button>
             </div>
           </div>
         </div>

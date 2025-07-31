@@ -23,6 +23,9 @@ export const SignUp = () => {
     const result = await register(data);
     if (result && result.user && result.token) {
       setAuth(result.user, result.token);
+      if (result.user.user_name) {
+        localStorage.setItem("user_name", result.user.user_name);
+      }
       navigate("/dashboard");
     }
   };

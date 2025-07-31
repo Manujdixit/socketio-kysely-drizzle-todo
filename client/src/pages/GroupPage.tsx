@@ -64,16 +64,26 @@ const GroupPage: React.FC = () => {
       userId: localStorage.getItem("manuj_user_id"),
     });
     socket.on("task_created", (task: Task) => {
-      setTasks((prev) => [task, ...prev]);
+      console.log("[Socket] Received task_created:", task);
+      setTasks((prev) => {
+        const updated = [task, ...prev];
+        return updated.sort((a, b) => {
+          const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return bTime - aTime;
+        });
+      });
       toast.success("New task added!");
     });
     socket.on("task_updated", (task: Task) => {
+      console.log("[Socket] Received task_updated:", task);
       setTasks((prev) =>
         prev.map((t) => (t.todo_id === task.todo_id ? task : t))
       );
       toast.info("Task updated!");
     });
     socket.on("task_deleted", (todo_id: string) => {
+      console.log("[Socket] Received task_deleted:", todo_id);
       setTasks((prev) => prev.filter((t) => t.todo_id !== todo_id));
       toast.info("Task deleted!");
     });
@@ -102,7 +112,7 @@ const GroupPage: React.FC = () => {
     );
     // Emit socket event
     const socket = connectSocket();
-    socket.emit("update_task", { ...task, status: newStatus });
+    socket.emit("update_task", { ...task, status: newStatus, room_id: roomId });
   };
 
   const handleEditTask = (
@@ -125,7 +135,7 @@ const GroupPage: React.FC = () => {
     );
     // Emit socket event
     const socket = connectSocket();
-    socket.emit("update_task", { ...task, ...updated });
+    socket.emit("update_task", { ...task, ...updated, room_id: roomId });
   };
 
   const handleDeleteTask = (todo_id: number) => {
@@ -135,7 +145,7 @@ const GroupPage: React.FC = () => {
     );
     // Emit socket event
     const socket = connectSocket();
-    socket.emit("delete_task", { todo_id });
+    socket.emit("delete_task", { todo_id, room_id: roomId });
   };
 
   return (
@@ -143,6 +153,7 @@ const GroupPage: React.FC = () => {
       showSidebar={true}
       sidebarProps={{}}
       onTaskButtonClick={() => setShowTaskForm(true)}
+      sheetsOpen={showTaskForm}
     >
       <div className="max-w-2xl mx-auto py-10 px-4">
         <h2 className="text-2xl font-bold mb-6 text-[var(--primary)]">

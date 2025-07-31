@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, LogOut, Plus } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Users,
+  UserPlus,
+} from "lucide-react";
 import MiniCalendar from "./ui/MiniCalendar";
 import JoinGroupSheet from "./JoinGroupSheet";
 import { useUserGroups } from "../hooks/useUserGroups";
@@ -10,6 +16,7 @@ interface SidebarProps {
   open?: boolean;
   setOpen?: (open: boolean) => void;
   onCreateGroup?: () => void;
+  sheetsOpen?: boolean;
 }
 
 function SidebarSheet({
@@ -31,13 +38,20 @@ function SidebarSheet({
   );
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, onCreateGroup }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  open,
+  setOpen,
+  onCreateGroup,
+  sheetsOpen,
+}) => {
   const [internalOpen, internalSetOpen] = useState(true); // Default to true for desktop
   const isOpen = typeof open === "boolean" ? open : internalOpen;
   const handleSetOpen = setOpen || internalSetOpen;
   const [showJoinGroupSheet, setShowJoinGroupSheet] = useState(false);
   const { groups, loading, error } = useUserGroups();
   const navigate = useNavigate();
+
+  const anySheetsOpen = sheetsOpen || showJoinGroupSheet;
 
   return (
     <>
@@ -48,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, onCreateGroup }) => {
           isOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"
         } md:relative md:flex md:translate-x-0 ${
           isOpen ? "md:w-72" : "md:w-16"
-        }`}
+        } ${anySheetsOpen ? "blur-sm pointer-events-none" : ""}`}
         aria-label="Sidebar navigation"
         data-open={isOpen}
       >
@@ -136,10 +150,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, onCreateGroup }) => {
             title={!isOpen ? "Create new group" : undefined}
             onClick={onCreateGroup}
           >
-            <Plus size={18} className="flex-shrink-0" />
+            <Users size={18} className="flex-shrink-0" />
             <span
               className={`transition-opacity duration-300 ${
-                isOpen ? "opacity-100" : "opacity-0 md:opacity-0"
+                isOpen ? "flex" : "hidden"
               }`}
             >
               Create new group
@@ -153,21 +167,32 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen, onCreateGroup }) => {
             title={!isOpen ? "Join group" : undefined}
             onClick={() => setShowJoinGroupSheet(true)}
           >
-            <Plus size={18} className="flex-shrink-0" />
-            <span
-              className={`transition-opacity duration-300 ${
-                isOpen ? "opacity-100" : "opacity-0 md:opacity-0"
-              }`}
-            >
-              Join group
-            </span>
+            <UserPlus size={18} className="flex-shrink-0" />
+            {isOpen && (
+              <span
+                className={`transition-opacity duration-300 ${
+                  isOpen ? "opacity-100" : "opacity-0 md:opacity-0"
+                }`}
+              >
+                Join group
+              </span>
+            )}
           </button>
         </nav>
         {/* Account button at bottom */}
         <div className="w-full p-4 flex justify-center items-center border-t border-[var(--sidebar-border)]">
-          <Button className="w-full">
+          <Button
+            onClick={() => {
+              localStorage.clear();
+              try {
+                navigate("/signin");
+              } catch {
+                window.location.href = "/signin";
+              }
+            }}
+            className="w-full"
+          >
             <LogOut />
-            Logout
           </Button>
         </div>
       </aside>

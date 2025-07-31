@@ -142,10 +142,22 @@ export async function getUserProfile(user_id: string) {
 export async function getAllTodosForMe(user_id: string, date?: Date) {
   // Room todos: tasks where user is a member of the room
   let roomTodosQuery = db
-    .selectFrom("todos")
-    .selectAll()
-    .where("user_id", "=", user_id)
-    .where("room_id", "is not", null);
+    .selectFrom("roomsUsers")
+    .innerJoin("todos", "roomsUsers.room_id", "todos.room_id")
+    .innerJoin("rooms", "rooms.room_id", "roomsUsers.room_id")
+    .select([
+      "todos.todo_id",
+      "todos.title",
+      "todos.room_id",
+      "todos.user_id",
+      "todos.todo_description",
+      "todos.status",
+      "todos.last_time",
+      "todos.created_at",
+      "todos.updated_at",
+      "rooms.room_name",
+    ])
+    .where("roomsUsers.user_id", "=", user_id);
 
   let privateTodosQuery = db
     .selectFrom("todos")

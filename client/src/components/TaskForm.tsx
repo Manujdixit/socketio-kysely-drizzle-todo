@@ -39,10 +39,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
       title,
       todo_description: notes,
       user_id: localStorage.getItem("token"),
-      room_id: roomId,
+      room_id: roomId || localStorage.getItem("currentRoomId"),
     };
-    console.log("[Socket] Emitting create_task:", payload);
     socket.emit("create_task", payload);
+
     if (onClose) onClose();
     setTitle("");
     setNotes("");
@@ -177,7 +177,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
             placeholder="Add notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3 py-2 bg-[var(--input)] border border-[var(--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
+            className="w-full px-3 py-2 bg-[var(--input)] border border-[var,--border)] rounded focus:outline-none focus:ring-2 focus:ring-[var(--ring)] text-[var(--foreground)]"
           />
         </div>
         <div className="flex gap-2 mt-4">

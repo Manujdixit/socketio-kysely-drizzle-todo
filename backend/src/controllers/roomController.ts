@@ -37,9 +37,11 @@ export const joinRoom = async (req: Request, res: Response) => {
     // Add user to room membership
     const alreadyMember = await roomService.isUserInRoom(userId, roomId);
     if (alreadyMember)
-      return res.status(200).json({ message: "Already a member" });
+      return res
+        .status(200)
+        .json({ success: true, message: "Already a member" });
     await roomService.addUserToRoom(userId, roomId);
-    res.status(201).json({ message: "Joined room" });
+    res.status(201).json({ success: true, message: "Joined room" });
   } catch (err) {
     res.status(500).json({ error: "Failed to join room" });
   }

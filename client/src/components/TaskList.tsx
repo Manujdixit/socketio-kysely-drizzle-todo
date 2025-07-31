@@ -3,9 +3,12 @@ import TaskItem from "./TaskItem";
 import { useSocketContext } from "../context/SocketProvider";
 import { useUserTodos } from "../hooks/useUserTodos";
 import { useOptimistic } from "../hooks/useOptimistic";
+import { toast } from "sonner";
+import { useUserGroups } from "../hooks/useUserGroups";
 
 const TaskList: React.FC = () => {
   const { tasks, setTasks, loading, error } = useUserTodos();
+  const { groups } = useUserGroups();
   const [editingId, setEditingId] = useState<number | null>(null);
   const socket = useSocketContext();
   // Optimistic state for tasks
@@ -21,12 +24,23 @@ const TaskList: React.FC = () => {
     if (!socket) return;
     // Listen for real-time events
     socket.on("task_created", (task: any) => {
-      setTasks((prev: any[]) => [...prev, task]);
+      console.log("[Socket] Received task_created:", task);
+      // Enrich with room_name if possible
+      const room = groups.find((g) => g.room_id === task.room_id);
+      const enrichedTask = room ? { ...task, room_name: room.room_name } : task;
+      setTasks((prev: any[]) => [...prev, enrichedTask]);
+      toast.message("Task list updated");
     });
     socket.on("task_updated", (updated: any) => {
+      // Enrich with room_name if possible
+      const room = groups.find((g) => g.room_id === updated.room_id);
+      const enrichedTask = room
+        ? { ...updated, room_name: room.room_name }
+        : updated;
       setTasks((prev: any[]) =>
-        prev.map((t) => (t.todo_id === updated.todo_id ? updated : t))
+        prev.map((t) => (t.todo_id === enrichedTask.todo_id ? enrichedTask : t))
       );
+      toast.message("Task list updated");
     });
     socket.on("task_deleted", (todo_id: number) => {
       setTasks((prev: any[]) => prev.filter((t) => t.todo_id !== todo_id));

@@ -21,6 +21,10 @@ export const SignIn = () => {
     console.log("Login result:", result);
     if (result && result.user && result.token) {
       setAuth(result.user, result.token);
+      // Set user_name in localStorage if not present
+      if (!localStorage.getItem("user_name") && result.user.user_name) {
+        localStorage.setItem("user_name", result.user.user_name);
+      }
       navigate("/dashboard");
     }
   };

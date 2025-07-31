@@ -14,6 +14,9 @@ export function registerSocketEvents(io: Server) {
     console.log("[Socket] Client connected:", socket.id);
     // Track userId for this socket (assume frontend emits 'identify' after connect)
     socket.on("identify", (userId) => {
+      console.log(
+        `[Socket] Received identify for userId=${userId}, socketId=${socket.id}`
+      );
       socket.data.userId = userId;
       if (!userSockets.has(userId)) userSockets.set(userId, new Set());
       userSockets.get(userId).add(socket.id);
@@ -28,13 +31,15 @@ export function registerSocketEvents(io: Server) {
     });
 
     // Join room
-    socket.on("join_room", async ({ roomId, userId }) => {
+    socket.on("join_room", async ({ roomId, userId }, cb) => {
       if (!(await isUserInRoom(userId, roomId))) {
         socket.emit("error", { error: "User not in room" });
+        cb?.({ success: false, message: "User not in room" });
         return;
       }
       socket.join(roomId);
       socket.to(roomId).emit("user_joined", { userId });
+      cb?.({ success: true });
     });
 
     // Leave room
@@ -45,6 +50,7 @@ export function registerSocketEvents(io: Server) {
 
     // Create task
     socket.on("create_task", async (data, cb) => {
+      console.log("[Socket] Received create_task event with data:", data);
       try {
         const todo = await createTodo(data);
         console.log("[Socket] Created todo:", todo);
@@ -53,8 +59,19 @@ export function registerSocketEvents(io: Server) {
         } else {
           // Private: emit only to all sockets of this user
           const userId = socket.data.userId;
+          console.log(
+            `[Socket] Preparing to emit private task_created for userId=${userId}, sockets=${
+              userSockets.get(userId)
+                ? Array.from(userSockets.get(userId)).join(",")
+                : "none"
+            }`
+          );
           if (userId && userSockets.has(userId)) {
             for (const sid of userSockets.get(userId)) {
+              console.log(
+                `[Socket] Emitting task_created to userId=${userId}, socketId=${sid}`,
+                todo
+              );
               io.to(sid).emit("task_created", todo);
             }
           } else {

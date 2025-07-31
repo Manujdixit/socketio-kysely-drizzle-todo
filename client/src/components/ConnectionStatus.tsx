@@ -13,10 +13,9 @@ export const ConnectionStatus: React.FC = () => {
   return (
     <div className="flex items-center gap-2 text-xs font-medium">
       <span
-        className={`inline-block w-2 h-2 rounded-full ${statusColors[status]}`}
+        className={`inline-block w-2 h-2 rounded-full animate-ping ${statusColors[status]}`}
         aria-label={status}
       ></span>
-      <span className="capitalize">{status}</span>
     </div>
   );
 };

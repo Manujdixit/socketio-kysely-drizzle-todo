@@ -11,6 +11,8 @@ interface TaskItemProps {
     tag?: string | null;
     avatars?: string[];
     time?: string;
+    room_id?: string;
+    room_name?: string;
   };
   onToggleStatus?: () => void;
   onEdit?: (newTitle: string) => void;
@@ -124,6 +126,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
               }`}
             >
               {task.title}
+            </span>
+          )}
+          {/* Show room name if present */}
+          {task.room_name && (
+            <span className="ml-2 px-2 py-0.5 rounded-lg bg-[var(--primary)] text-white text-xs font-bold whitespace-nowrap">
+              {task.room_name}
             </span>
           )}
           {task.tag && (
