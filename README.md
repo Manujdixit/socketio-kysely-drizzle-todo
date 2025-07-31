@@ -6,6 +6,13 @@ A full-stack collaborative todo application featuring real-time updates, group m
 
 ---
 
+### Live Links-
+
+Frontend : https://socketio-kysely-drizzle-todo.vercel.app
+Backend Api: https://socketio-kysely-drizzle-todo.onrender.com
+Backend Api: https://socketio-kysely-drizzle-todo.onrender.com/health
+Api Documentation : https://socketio-kysely-drizzle-todo.onrender.com/api-docs
+
 ## Features
 
 - Real-time task creation, update, and deletion (Socket.IO)
